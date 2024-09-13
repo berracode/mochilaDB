@@ -1,0 +1,6 @@
+**/output/**
+/.vscode
+**/build
+**/output
+main
+linux.c
