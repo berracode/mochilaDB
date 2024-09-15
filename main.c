@@ -153,9 +153,6 @@ void insert(hash_table_t *table, const char *key, const char *value) {
         current->next = new_entry;
     }*/
 
-    if(strncmp(key, "key1201725", 10)==0){
-        sleep(15);
-    }
     if (table->buckets[index] == NULL) {
         pthread_rwlock_wrlock(&table->bucket_locks[index]);
         printf("Thread %ld acquired 1 read lock\n", pthread_self());
@@ -169,23 +166,6 @@ void insert(hash_table_t *table, const char *key, const char *value) {
         printf("Thread %ld acquired 2 read lock\n", pthread_self());
 
         while (current->next != NULL) {
-
-            if((strncmp(key, "key1201725", 10)==0)){
-
-                if(strncmp(key, current->key, 10)==0){
-                    printf("es igual con N\n");
-                }
-
-                if (strcmp(current->key, key) == 0) {
-                    printf("es igual sin N\n");
-                }
-
-
-                printf("key: %s, len=%ld\n", key, strlen(key));
-                printf("current->key: %s, len=%ld\n", current->key, strlen(current->key));
-
-                sleep(20);
-            }
 
             if (strcmp(current->key, key) == 0) {
                 // La clave ya existe, actualizar el valor
@@ -210,7 +190,7 @@ void insert(hash_table_t *table, const char *key, const char *value) {
             printf("Thread %ld acquired 4 read lock\n", pthread_self());
 
         }
-        if(strcmp(current->key, key)==0){ //ya existe la key y es la unica del bucket
+        if(strcmp(current->key, key)==0){ //ya existe la key y es la unica del bucket MEJORAR ESTO
             pthread_rwlock_wrlock(&current->lock); // Bloquear la entrada actual
             printf("Thread %ld acquired 5 read lock\n", pthread_self());
             free(current->value);
