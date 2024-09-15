@@ -47,7 +47,7 @@ void print_bucket(entry_t *bucket_head, FILE *file) {
         pthread_rwlock_rdlock(&current->lock);
         //printf("  Key: %s, Value: %s\n", current->key, current->value);
 
-        fprintf(file, "%s,\n", current->key);
+        fprintf(file, "K=%s, V=%s\n", current->key, current->value);
         //fprintf(file, "K: %s, V: %s\n", current->key, current->value);
 
         pthread_rwlock_unlock(&current->lock);
@@ -74,7 +74,7 @@ void print_hash_table(const char *filename) {
     for (size_t i = 0; i < TABLE_SIZE; ++i) {
         pthread_rwlock_rdlock(&hash_table->bucket_locks[i]);
         if(hash_table->buckets[i]!=NULL){
-            //fprintf(file, "Bucket %zu:\n", i);
+            fprintf(file, "Bucket %zu:\n", i);
             print_bucket(hash_table->buckets[i], file);
         }
         
@@ -153,23 +153,48 @@ void insert(hash_table_t *table, const char *key, const char *value) {
         current->next = new_entry;
     }*/
 
-
+    if(strncmp(key, "key1201725", 10)==0){
+        sleep(15);
+    }
     if (table->buckets[index] == NULL) {
         pthread_rwlock_wrlock(&table->bucket_locks[index]);
+        printf("Thread %ld acquired 1 read lock\n", pthread_self());
+
         table->buckets[index] = new_entry;
         pthread_rwlock_unlock(&table->bucket_locks[index]);  // Desbloquear el bucket
-
+        printf("Thread %ld released 1 read lock\n", pthread_self());
     } else {
         entry_t *current = table->buckets[index];
         pthread_rwlock_wrlock(&current->lock); // Bloquear la primera entrada 
+        printf("Thread %ld acquired 2 read lock\n", pthread_self());
+
         while (current->next != NULL) {
+
+            if((strncmp(key, "key1201725", 10)==0)){
+
+                if(strncmp(key, current->key, 10)==0){
+                    printf("es igual con N\n");
+                }
+
+                if (strcmp(current->key, key) == 0) {
+                    printf("es igual sin N\n");
+                }
+
+
+                printf("key: %s, len=%ld\n", key, strlen(key));
+                printf("current->key: %s, len=%ld\n", current->key, strlen(current->key));
+
+                sleep(20);
+            }
 
             if (strcmp(current->key, key) == 0) {
                 // La clave ya existe, actualizar el valor
                 pthread_rwlock_wrlock(&current->lock); // Bloquear la entrada actual
+                printf("Thread %ld acquired 3 read lock\n", pthread_self());
                 free(current->value);
                 current->value = strdup(value);
                 pthread_rwlock_unlock(&current->lock); // Desbloquear la entrada actual
+                printf("Thread %ld released 3 read lock\n", pthread_self());
                 //pthread_rwlock_unlock(&table->bucket_locks[index]); // Desbloquear el bucket
                 free(new_entry->key);
                 free(new_entry->value);
@@ -178,12 +203,29 @@ void insert(hash_table_t *table, const char *key, const char *value) {
             }
 
             pthread_rwlock_unlock(&current->lock); //desbloquear la entrada actual
+            printf("Thread %ld released 4 read lock\n", pthread_self());
+
             current = current->next;
             pthread_rwlock_wrlock(&current->lock);
+            printf("Thread %ld acquired 4 read lock\n", pthread_self());
 
+        }
+        if(strcmp(current->key, key)==0){ //ya existe la key y es la unica del bucket
+            pthread_rwlock_wrlock(&current->lock); // Bloquear la entrada actual
+            printf("Thread %ld acquired 5 read lock\n", pthread_self());
+            free(current->value);
+            current->value = strdup(value);
+            pthread_rwlock_unlock(&current->lock); // Desbloquear la entrada actual
+            printf("Thread %ld released 5 read lock\n", pthread_self());
+            //pthread_rwlock_unlock(&table->bucket_locks[index]); // Desbloquear el bucket
+            free(new_entry->key);
+            free(new_entry->value);
+            free(new_entry);
+            return;
         }
         current->next = new_entry;
         pthread_rwlock_unlock(&current->lock); // Desbloquear el ultimo entry
+        printf("Thread %ld released 2 read lock\n", pthread_self());
 
 
     }
@@ -340,6 +382,8 @@ void handle_connection(int client_fd) {
         }
     } else if(strncmp(buffer, "LIST", 4)==0) {
         print_hash_table("hash_table_output.txt");
+        write(client_fd, "WHW", strlen("WHW"));
+
     }
     close(client_fd);
 
