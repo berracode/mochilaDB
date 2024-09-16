@@ -1,39 +1,42 @@
 CC = gcc
-
 # Opciones de compilación para desarrollo
 CFLAGS_DEV = -Wall -Wextra -g
 
 # Opciones de compilación para producción
 CFLAGS_PROD = -O3 -flto -DNDEBUG -march=native
 
-HEADERS = 
-SRCS = main.c
+LIBS = 
+SRC_DIR = .
+BUILD_DIR = build
+BIN_DIR = bin
 
-# Archivos objeto generados
-OBJS = $(SRCS:.c=.o)
+# All source files (including subdirectorios)
+SRCS := $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/*.c)
 
-# Nombre del ejecutable
-EXEC = mochiladb
+# All generated objects
+OBJS := $(patsubst $(SRC_DIR)/**/*.c,$(BUILD_DIR)/%.o,$(SRCS))
 
+# name of program (Sysbansi for SImple BANking SYStem in reverse)
+TARGET = mochiladb
 
-# Reglas de compilación
-all: $(EXEC) clean_objs
+all: $(BIN_DIR)/$(TARGET) clean_objs
 
-# Regla para compilar el ejecutable
-$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+# Rule for build executable program
+$(BIN_DIR)/$(TARGET): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
-# Regla para compilar archivos .c a archivos .o
-%.o: %.c $(HEADERS)
+# Rule for build each object
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpiar archivos objeto
 clean_objs:
-	rm -f $(OBJS)
+	rm -f $(BUILD_DIR)
 
-# Limpiar archivos generados
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 # Recompilar todo desde cero
 rebuild: clean all
