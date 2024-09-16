@@ -40,7 +40,7 @@ def worker():
 
 # Crear y lanzar múltiples hilos para realizar operaciones concurrentes
 def main():
-    num_threads = 1000  # Número de hilos concurrentes
+    num_threads = 100  # Número de hilos concurrentes
     threads = []
 
     for _ in range(num_threads):
