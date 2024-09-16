@@ -5,3 +5,6 @@
 main
 linux.c
 hash_table_output.txt
+
+
+bin/mochiladb.*

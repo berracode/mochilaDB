@@ -21,46 +21,38 @@ void print_bucket(entry_t *bucket_head, FILE *file) {
     entry_t *current = bucket_head;
     while (current != NULL) {
         //pthread_rwlock_rdlock(&current->lock);
-        printf("  Key: %s, Value: %s\n", current->key, current->value);
-
         fprintf(file, "K=%s, V=%s\n", current->key, current->value);
-        //fprintf(file, "K: %s, V: %s\n", current->key, current->value);
-
-        //pthread_rwlock_unlock(&current->lock);
-
         current = current->next;
     }
 }
 
-void print_hash_table(const char *filename) {
+void* print_hash_table(void *arg) {
+    printf("Hilo DE IMPRESION, ID: %lu\n", pthread_self());  // Imprimir ID del hilo
+    char *filename = (char* )arg;
     if (hash_table == NULL) {
         printf("Hash table is NULL\n");
-        return;
+        return NULL;
     }
 
     // Redirigir stdout al archivo
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Failed to open file");
-        return;
+        return NULL;
     }
 
-    //pthread_rwlock_rdlock(&hash_table->table_lock);
-    //fprintf(file, "Hash Table:\n");
-    printf("Hashtable... %ld\n", hash_table->size);
+    printf("###### Hashtable... %ld\n", hash_table->size);
     for (size_t i = 0; i < hash_table->capacity; ++i) {
         if(hash_table->entries[i]!=NULL){
             fprintf(file, "Bucket %zu:\n", i);
             print_bucket(hash_table->entries[i], file);
         }
-        
-
-        //pthread_rwlock_unlock(&hash_table->bucket_locks[i]);
     }
+    printf("###### HashtableFIN ... %ld\n", hash_table->size);
 
-    //pthread_rwlock_unlock(&hash_table->table_lock);
 
     fclose(file);
+    return NULL;
 } //LIST a
 
 char* read_my(const char *key) {
@@ -128,6 +120,8 @@ int init_server() {
 
 void handle_connection(int client_fd) {
     printf("Handling client %d\n", client_fd);
+    printf("Hilo PRINCIPAL, ID: %lu\n", pthread_self());  // Imprimir ID del hilo
+
 
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer) - 1);
@@ -166,11 +160,20 @@ void handle_connection(int client_fd) {
             printf("#### KEY read: %s\n", value);
             if (value) {
                 write(client_fd, value, strlen(value));
-                m_free(value);
             }
         }
     } else if(strncmp(buffer, "LIST", 4)==0) {
-        print_hash_table("hash_table_output.txt");
+
+        char* filename = "hash_table_output.txt";
+
+        // Crear un nuevo hilo para manejar la operación LIST
+        pthread_t list_thread;
+        if (pthread_create(&list_thread, NULL, print_hash_table, (void*)filename) != 0) {
+            perror("Error al crear el hilo para LIST");
+        } else {
+            // Hacer detached el hilo para no necesitar hacer join
+            pthread_detach(list_thread);
+        }
         write(client_fd, "WHW", strlen("WHW"));
 
     }
@@ -181,7 +184,7 @@ void handle_connection(int client_fd) {
 }
 
 int main() {
-    hash_table = create_table(512);
+    hash_table = create_table(8192);
 
     int server_fd = init_server();
     set_fd_nonblocking(server_fd);
