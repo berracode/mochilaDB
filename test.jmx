@@ -57,7 +57,7 @@
         <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="READ" enabled="true">
           <stringProp name="TCPSampler.server">localhost</stringProp>
           <boolProp name="TCPSampler.reUseConnection">false</boolProp>
-          <stringProp name="TCPSampler.port">8080</stringProp>
+          <stringProp name="TCPSampler.port">7986</stringProp>
           <boolProp name="TCPSampler.nodelay">false</boolProp>
           <stringProp name="TCPSampler.timeout"></stringProp>
           <stringProp name="TCPSampler.request">READ key${insertRandom} a
@@ -70,7 +70,7 @@
         <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="INSERT" enabled="true">
           <stringProp name="TCPSampler.server">localhost</stringProp>
           <boolProp name="TCPSampler.reUseConnection">false</boolProp>
-          <stringProp name="TCPSampler.port">8080</stringProp>
+          <stringProp name="TCPSampler.port">7986</stringProp>
           <boolProp name="TCPSampler.nodelay">false</boolProp>
           <stringProp name="TCPSampler.timeout"></stringProp>
           <stringProp name="TCPSampler.request">INSERT key${insertRandom} value${insertRandom} a</stringProp>
