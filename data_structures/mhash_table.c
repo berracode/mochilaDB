@@ -26,13 +26,12 @@ unsigned int hash_function(const size_t hash_table_size, const char *str) {
     while ((c = *str++))
         hash = ((hash << 5) + hash) + c;
 
-    //printf("hash=%d, ht size %ld\n", hash, hash_table_size);
     unsigned int n_hash = hash % hash_table_size;
 
     return n_hash;
 }
 
-entry_t* get(mhash_table_t *table, const char *key) {
+entry_t* htget(mhash_table_t *table, char *key) {
     unsigned int index = hash_function(table->capacity, key);
     entry_t *current = table->entries[index];
 
@@ -50,7 +49,6 @@ entry_t* get(mhash_table_t *table, const char *key) {
 void put(mhash_table_t *table, char *key, char *value) {
     if(key != NULL && value != NULL){
         unsigned int index= hash_function(table->capacity, key);
-        //printf("INDEX HT %d\n", index);
 
         entry_t *new_node = (entry_t *)m_malloc(sizeof(entry_t));
         new_node->key = (char*)m_malloc(strlen(key) + 1);
@@ -65,7 +63,7 @@ void put(mhash_table_t *table, char *key, char *value) {
             table->entries[index] = new_node;
         } else {
             entry_t *current = table->entries[index];
-            entry_t *found = get(table, key);
+            entry_t *found = htget(table, key);
 
             if(found==NULL){ //does not exist
                 //added node
@@ -120,13 +118,9 @@ void print_table(const mhash_table_t *table) {
                 printf("Bucket: %ld [%s, %s]\n", i, current->key, current->value);
                 current = current->next;
             }
-            
-            
         } else{
             printf("Bucket %ld VACIO\n", i);
         }
-
-        //printf("Character: %s, Prefix: %s\n", table->prefix_codes[i].character, table->prefix_codes[i].bits);
     }
 }
 

@@ -1,8 +1,7 @@
 #include "listener.h"
 #include "../data_structures/mhash_table.h"
-#include "handler.h"
+#include "../handler/handler.h"
 
-mhash_table_t *hash_table;
 config_t *config;
 
 void set_fd_nonblocking(int fd) {
