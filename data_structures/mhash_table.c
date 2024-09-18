@@ -6,6 +6,8 @@
 
 void free_entry(entry_t *temp);
 
+mhash_table_t *hash_table;
+
 mhash_table_t* create_table(size_t initial_capacity) {
     mhash_table_t *table = (mhash_table_t *)m_malloc(sizeof(mhash_table_t));
     if (!table) return NULL;

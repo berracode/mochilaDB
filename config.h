@@ -7,6 +7,7 @@ typedef struct config {
     int hashtable_size;
     float load_factor;
 } config_t;
+extern config_t *config;
 
 config_t* init_config();
 

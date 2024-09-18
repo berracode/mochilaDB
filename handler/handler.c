@@ -2,19 +2,6 @@
 #include "commands.h"
 #include "../mem/mmem.h"
 
-extern const char *OK;
-
-mhash_table_t *hash_table;
-config_t *config;
-
-void set_config(config_t *config_arg) {
-    config = config_arg;
-}
-
-void set_global_hash_table(mhash_table_t *hash_table_arg){
-    hash_table = hash_table_arg;
-}
-
 void handle_connection(int client_fd) {
     printf("Handling client %d\n", client_fd);
 

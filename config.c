@@ -9,6 +9,8 @@
 #define HASHTABLE_SIZE 512
 #define LOAD_FACTOR 0 //0= not rehashing; >0 rehashing
 
+config_t *config = NULL;
+
 char* trim(char* str) {
     char* end;
 

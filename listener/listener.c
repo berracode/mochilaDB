@@ -2,8 +2,6 @@
 #include "../data_structures/mhash_table.h"
 #include "../handler/handler.h"
 
-config_t *config;
-
 void set_fd_nonblocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
     fcntl(fd, F_SETFL, flags | O_NONBLOCK);
@@ -56,8 +54,7 @@ void start_server(int server_fd){
 
     hash_table = create_table(config->hashtable_size);
 
-    set_config(config);
-    set_global_hash_table(hash_table);
+    //set_config(config);
     set_fd_nonblocking(server_fd);
 
     int max_fd = server_fd;
