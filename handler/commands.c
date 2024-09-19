@@ -14,8 +14,10 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(command_t);
 
 
 response_t* set(int argc, char *argv[]) {
+    //printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
+    //sleep(3);
     response_t *response = m_malloc(sizeof(response_t *));
-    printf("Executing command %s with %d arguments\n",argv[0], argc);
+    printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
     char *key = argv[1];
     char *value = argv[2];
     if (key && value) {
@@ -25,12 +27,15 @@ response_t* set(int argc, char *argv[]) {
     response->status = SUCCESS;
     response->message = strdup(OK);
 
-    return response;
+    printf("$$$ End command %s\n",argv[0]);
 
+    return response;
 }
 
 response_t* get(int argc, char *argv[]) {
-    printf("Executing command %s with %d arguments\n",argv[0], argc);
+    //printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
+    //sleep(5);
+    printf("--- Executing command %s with %d arguments\n",argv[0], argc);
     response_t *response = m_malloc(sizeof(response_t *));
 
     char *key = argv[1];
@@ -44,6 +49,7 @@ response_t* get(int argc, char *argv[]) {
             response->status = SUCCESS;
         }
     }
+    printf("--- End command %s\n",argv[0]);
 
     return response;
 }

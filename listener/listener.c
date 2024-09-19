@@ -1,5 +1,6 @@
 #include "listener.h"
 #include "../data_structures/mhash_table.h"
+#include "../data_structures/mqueue.h"
 #include "../handler/handler.h"
 
 void set_fd_nonblocking(int fd) {
@@ -50,9 +51,25 @@ int init_server() {
     return server_fd;
 }
 
+void* worker_thread(void* arg) {
+    printf("Hilo esperando %ld\n", pthread_self());
+    while (1) {
+        int client_fd = dequeue(request_queue);
+        handle_connection(client_fd);
+    }
+    return NULL;
+}
+
 void start_server(int server_fd){
 
     hash_table = create_table(config->hashtable_size);
+    //queue
+    request_queue = init_queue();
+
+    pthread_t pool[config->thread_pool_size];
+    for (int i = 0; i < config->thread_pool_size; i++) {
+        pthread_create(&pool[i], NULL, worker_thread, NULL);
+    }
 
     //set_config(config);
     set_fd_nonblocking(server_fd);
@@ -94,13 +111,14 @@ void start_server(int server_fd){
                         max_fd = new_socket;
                     }
                 } else {
-                    handle_connection(fd);
+                    //handle_connection(fd); 
+                    enqueue(request_queue, fd);
                     FD_CLR(fd, &master_fds);
                 }
             }
         }
     }
-
+    destroy_queue(request_queue);
     close(server_fd);
     free_table(hash_table);
     m_free(config);

@@ -8,6 +8,7 @@
 #define BUFFER_SIZE 256
 #define HASHTABLE_SIZE 512
 #define LOAD_FACTOR 0 //0= not rehashing; >0 rehashing
+#define THREAD_POOL_SIZE 1
 
 config_t *config = NULL;
 
@@ -42,6 +43,7 @@ config_t* init_config() {
     config->buffer_size = BUFFER_SIZE;
     config->hashtable_size = HASHTABLE_SIZE;
     config->load_factor = LOAD_FACTOR;
+    config->thread_pool_size = THREAD_POOL_SIZE;
 
     char line[256];
 
@@ -66,6 +68,8 @@ config_t* init_config() {
                 config->hashtable_size = atoi(value);
             } else if (strcmp(key, "load_factor") == 0) {
                 config->load_factor = atof(value);
+            } else if (strcmp(key, "thread_pool_size") == 0) {
+                config->thread_pool_size = atoi(value);
             } else {
                 printf("Unknow key in config file: %s\n", key);
             }

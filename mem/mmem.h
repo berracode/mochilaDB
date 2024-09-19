@@ -1,5 +1,5 @@
 #ifndef MEM_H
-
+#define MEM_H
 #include <stddef.h>
 
 void* custom_malloc(size_t size, const char* file, int line);
