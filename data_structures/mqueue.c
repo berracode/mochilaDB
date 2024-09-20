@@ -31,16 +31,16 @@ void enqueue(queue_t* queue, int data) {
 }
 
 int dequeue(queue_t* queue) {
-    printf("Hilo esperando2 %ld\n", pthread_self());
+    safe_printf("Hilo esperando2 %ld\n", pthread_self());
 
     pthread_mutex_lock(&queue->mutex);
-    printf("Hilo captura mutex %ld\n", pthread_self());
+    safe_printf("Hilo captura mutex %ld\n", pthread_self());
 
     while (queue->front == NULL) {
-        printf("Hilo ANTES WAIT mutex %ld\n", pthread_self());
+        safe_printf("Hilo ANTES WAIT mutex %ld\n", pthread_self());
 
         pthread_cond_wait(&queue->cond, &queue->mutex);
-        printf("Hilo DESPUES WAIT mutex %ld\n", pthread_self());
+        safe_printf("Hilo DESPUES WAIT mutex %ld\n", pthread_self());
 
     }
 

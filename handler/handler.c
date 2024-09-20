@@ -1,9 +1,10 @@
 #include "handler.h"
 #include "commands.h"
 #include "../utils/mem/mmem.h"
+#include "../utils/stdio/logger.h"
 
 void handle_connection(int client_fd) {
-    printf("Handling client %d\n", client_fd);
+    safe_printf("Handling client %d\n", client_fd);
 
     char buffer[config->buffer_size];
     char *output_buffer = NULL;
@@ -11,7 +12,7 @@ void handle_connection(int client_fd) {
 
     if (bytes_read < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            printf("No data\n");
+            safe_printf("No data\n");
             return;
         } else {
             perror("read");
@@ -28,6 +29,6 @@ void handle_connection(int client_fd) {
     write(client_fd, output_buffer, strlen(output_buffer));
     close(client_fd);
 
-    printf("End Handling client %d\n", client_fd);
+    safe_printf("End Handling client %d\n", client_fd);
 
 }

@@ -9,7 +9,7 @@ void set_fd_nonblocking(int fd) {
 }
 
 int init_server() {
-    printf("Starting server\n");
+    safe_printf("Starting server\n");
     config = init_config();
 
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,12 +47,12 @@ int init_server() {
         close(server_fd);
         exit(EXIT_FAILURE);
     }
-    printf("Server started successful!\n");
+    safe_printf("Server started successful!\n");
     return server_fd;
 }
 
 void* worker_thread(void* arg) {
-    printf("Hilo esperando %ld\n", pthread_self());
+    safe_printf("Hilo esperando %ld\n", pthread_self());
     while (1) {
         int client_fd = dequeue(request_queue);
         handle_connection(client_fd);
@@ -87,7 +87,7 @@ void start_server(int server_fd){
 
     while (1) {
         read_fds = master_fds;
-
+        //TODO: implementar el eventloop con epoll y kqueue
         if (select(max_fd + 1, &read_fds, NULL, NULL, &timeout) < 0) {
             perror("select");
             exit(EXIT_FAILURE);

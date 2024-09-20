@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "utils/stdio/logger.h"
+
 //to convert in hash table too
 typedef struct config {
     int port;

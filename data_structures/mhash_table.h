@@ -13,8 +13,8 @@ typedef struct entry {
 typedef struct kthash_table_t{
     entry_t **entries;
     size_t size;
-    size_t capacity;
-} mhash_table_t;
+    size_t capacity; //TODO: implementar rehashing
+} mhash_table_t; //TODO: hacer que está estructura y sus metodos sea segura concurrentemente, usar RWLOCK CON BLOQUEO FINO
 
 extern mhash_table_t *hash_table;
 

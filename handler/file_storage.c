@@ -1,4 +1,5 @@
 #include "file_storage.h"
+#include "../utils/stdio/logger.h"
 
 
 void print_bucket(entry_t *bucket_head, FILE *file) {
@@ -10,11 +11,11 @@ void print_bucket(entry_t *bucket_head, FILE *file) {
 }
 
 void* print_hash_table(void *arg) {
-    printf("###### Hashtable... %ld\n", hash_table->size);
+    safe_printf("###### Hashtable... %ld\n", hash_table->size);
 
     char *filename = (char* )arg;
     if (hash_table == NULL) {
-        printf("Hash table is NULL\n");
+        safe_printf("Hash table is NULL\n");
         return NULL;
     }
 
@@ -25,14 +26,14 @@ void* print_hash_table(void *arg) {
         return NULL;
     }
 
-    printf("###### Hashtable... %ld\n", hash_table->size);
+    safe_printf("###### Hashtable... %ld\n", hash_table->size);
     for (size_t i = 0; i < hash_table->capacity; ++i) {
         if(hash_table->entries[i]!=NULL){
             fprintf(file, "Bucket %zu:\n", i);
             print_bucket(hash_table->entries[i], file);
         }
     }
-    printf("###### HashtableFIN ... %ld\n", hash_table->size);
+    safe_printf("###### HashtableFIN ... %ld\n", hash_table->size);
 
 
     fclose(file);

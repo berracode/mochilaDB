@@ -26,7 +26,8 @@ char* trim(char* str) {
 }
 
 config_t* init_config() {
-    printf("Reading properties file\n");
+    //TODO: implementar función de impresión segura para multithreading
+    safe_printf("Reading properties file\n");
     FILE *file = fopen("config.properties", "r");
     if (!file) {
         perror("Error open config file");
@@ -71,19 +72,19 @@ config_t* init_config() {
             } else if (strcmp(key, "thread_pool_size") == 0) {
                 config->thread_pool_size = atoi(value);
             } else {
-                printf("Unknow key in config file: %s\n", key);
+                safe_printf("Unknow key in config file: %s\n", key);
             }
         }
     }
-    printf("############################\n");
-    printf("### Server configuration ###\n");
-    printf("############################\n");
+    safe_printf("############################\n");
+    safe_printf("### Server configuration ###\n");
+    safe_printf("############################\n");
 
-    printf("# Server port: %d\n", config->port);
-    printf("# Buffer size: %d\n", config->buffer_size);
-    printf("# Initial hashtable size: %d\n", config->hashtable_size);
-    printf("# Load factor for rehashing: %.2f\n", config->load_factor);
-    printf("############################\n\n");
+    safe_printf("# Server port: %d\n", config->port);
+    safe_printf("# Buffer size: %d\n", config->buffer_size);
+    safe_printf("# Initial hashtable size: %d\n", config->hashtable_size);
+    safe_printf("# Load factor for rehashing: %.2f\n", config->load_factor);
+    safe_printf("############################\n\n");
 
 
     fclose(file);

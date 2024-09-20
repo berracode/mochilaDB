@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mhash_table.h"
+#include "../utils/stdio/logger.h"
 
 void free_entry(entry_t *temp);
 
@@ -111,16 +112,16 @@ void free_table(mhash_table_t *table) {
 
 
 void print_table(const mhash_table_t *table) {
-    printf("capacity: %ld - size: %ld\n", table->capacity, table->size);
+    safe_printf("capacity: %ld - size: %ld\n", table->capacity, table->size);
     for (size_t i = 0; i < table->capacity; i++) {
         entry_t *current = table->entries[i];
         if(current != NULL) {
             while (current != NULL){
-                printf("Bucket: %ld [%s, %s]\n", i, current->key, current->value);
+                safe_printf("Bucket: %ld [%s, %s]\n", i, current->key, current->value);
                 current = current->next;
             }
         } else{
-            printf("Bucket %ld VACIO\n", i);
+            safe_printf("Bucket %ld VACIO\n", i);
         }
     }
 }

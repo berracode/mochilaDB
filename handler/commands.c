@@ -2,6 +2,7 @@
 #include "../utils/mem/mmem.h"
 #include "../data_structures/mhash_table.h"
 #include "file_storage.h"
+#include "../utils/stdio/logger.h"
 
 #define MAX_ARGS 10
 
@@ -14,10 +15,10 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(command_t);
 
 
 response_t* set(int argc, char *argv[]) {
-    //printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
+    //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
     //sleep(3);
     response_t *response = m_malloc(sizeof(response_t *));
-    printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
+    safe_printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
     char *key = argv[1];
     char *value = argv[2];
     if (key && value) {
@@ -27,15 +28,15 @@ response_t* set(int argc, char *argv[]) {
     response->status = SUCCESS;
     response->message = strdup(OK);
 
-    printf("$$$ End command %s\n",argv[0]);
+    safe_printf("$$$ End command %s\n",argv[0]);
 
     return response;
 }
 
 response_t* get(int argc, char *argv[]) {
-    //printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
+    //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
     //sleep(5);
-    printf("--- Executing command %s with %d arguments\n",argv[0], argc);
+    safe_printf("--- Executing command %s with %d arguments\n",argv[0], argc);
     response_t *response = m_malloc(sizeof(response_t *));
 
     char *key = argv[1];
@@ -49,13 +50,13 @@ response_t* get(int argc, char *argv[]) {
             response->status = SUCCESS;
         }
     }
-    printf("--- End command %s\n",argv[0]);
+    safe_printf("--- End command %s\n",argv[0]);
 
     return response;
 }
 
 response_t* list(int argc, char *argv[]) {
-    printf("Executing command %s with %d arguments\n",argv[0], argc);
+    safe_printf("Executing command %s with %d arguments\n",argv[0], argc);
     response_t *response = m_malloc(sizeof(response_t *));
 
     char* filename = "hash_table_output.txt";
@@ -80,18 +81,18 @@ void clean_argv(int argc, char *argv[]) {
 
     /*for (int k = 0; k < (int)strlen(argv[argc-1]); k++)
     {
-        printf("last token: [%d]\n", argv[argc-1][k]);
+        safe_printf("last token: [%d]\n", argv[argc-1][k]);
 
 
     }
     
 
     for (int i = 0; i < argc; i++){
-        printf("---- %s\n", argv[i]);
+        safe_printf("---- %s\n", argv[i]);
         for (int j = 0; j < (int)strlen(argv[i]); j++){
-            printf("[%d]\n", argv[i][j]);
+            safe_printf("[%d]\n", argv[i][j]);
         }
-        printf("----\n");
+        safe_printf("----\n");
     }*/
 
 }
@@ -107,7 +108,7 @@ void process_command(char *input, char **output) {
     }
 
     if (argc == 0) {
-        printf("None command\n");
+        safe_printf("None command\n");
         return;
     }
     //TODO: improve commands proccessing
@@ -126,6 +127,6 @@ void process_command(char *input, char **output) {
     }
 
     *output = strdup(UNKNOWN_COMMAND);
-    printf("%s\n", *output);
+    safe_printf("%s\n", *output);
 
 }
