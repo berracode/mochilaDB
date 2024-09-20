@@ -1,6 +1,6 @@
 #include "handler.h"
 #include "commands.h"
-#include "../mem/mmem.h"
+#include "../utils/mem/mmem.h"
 
 void handle_connection(int client_fd) {
     printf("Handling client %d\n", client_fd);

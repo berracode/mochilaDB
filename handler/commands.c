@@ -1,5 +1,5 @@
 #include "commands.h"
-#include "../mem/mmem.h"
+#include "../utils/mem/mmem.h"
 #include "../data_structures/mhash_table.h"
 #include "file_storage.h"
 

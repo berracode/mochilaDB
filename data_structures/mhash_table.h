@@ -1,7 +1,7 @@
 #ifndef MHASH_TABLE_H
 #define MHASH_TABLE_H
 #include <stdlib.h>
-#include "../mem/mmem.h"
+#include "../utils/mem/mmem.h"
 
 
 typedef struct entry {

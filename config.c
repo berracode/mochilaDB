@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
-#include "mem/mmem.h"
+#include "utils/mem/mmem.h"
 
 #define PORT 7986
 #define BUFFER_SIZE 256
