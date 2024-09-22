@@ -33,13 +33,14 @@ void handle_connection(int client_fd) {
             perror("send");
             // Manejar el error
         }
-
+        if(strlen(output_buffer)>0) {
+            m_free(output_buffer);
+        }
         safe_printf("End Handling client %d, %ld\n", client_fd, bytes_sent);
     }
    
 
     shutdown(client_fd, SHUT_RDWR);
     close(client_fd);
-    m_free(output_buffer);
 
 }

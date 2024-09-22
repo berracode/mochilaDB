@@ -27,7 +27,7 @@ void epoll_wait_2(event_loop_t *loop, int server_fd, handler_connection_t handle
                 // Nueva conexión
                 int client_fd = accept(server_fd, NULL, NULL);
                 if (client_fd < 0) {
-                    perror("Error en accept");
+                    perror("Error accepting client");
                     continue;
                 }
 
@@ -36,11 +36,16 @@ void epoll_wait_2(event_loop_t *loop, int server_fd, handler_connection_t handle
                 // Agregar el descriptor del cliente al epoll
                 epoll_add(loop, client_fd);
 
-            } else {
-                // AQUI PONER FUNCION HANDLE CONNECTION
+            } else if (epoll_loop->events[i].events & EPOLLIN) {
                handler(epoll_loop->events[i].data.fd);
                //loop->remove(loop, epoll_loop->events[i].data.fd); //TODO: VALIDAR SI DEBO CERRAR SOCKET Y REMOVER
 
+            //} else if (epoll_loop->events[i].events & EPOLLOUT) {
+                // TODO: Implement a function to write data in the client (queue to enqueue and dequeue data )
+            } else if (epoll_loop->events[i].events & (EPOLLHUP | EPOLLERR)) {
+                // Hubo un error o el cliente colgó
+                int client_fd = epoll_loop->events[i].data.fd;
+                close(client_fd);
             }
         }
     }
