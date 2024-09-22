@@ -18,6 +18,7 @@ mhash_table_t* create_table(size_t initial_capacity) {
     }
     table->size = 0;
     table->capacity = initial_capacity;
+    pthread_rwlock_init(&table->table_lock, NULL);
     return table;
 }
 
@@ -33,20 +34,28 @@ unsigned int hash_function(const size_t hash_table_size, const char *str) {
     return n_hash;
 }
 
-entry_t* htget(mhash_table_t *table, char *key) {
+char* htget(mhash_table_t *table, char *key) {
+    char *value = NULL;
     unsigned int index = hash_function(table->capacity, key);
     entry_t *current = table->entries[index];
 
+    if(!current) return NULL;
     while (current != NULL) {
+        pthread_rwlock_rdlock(&current->lock);
+
         if (strcmp(current->key, key) == 0) {
-            return current;
+            value = strdup(current->value);
+            pthread_rwlock_unlock(&current->lock);
+            return value;
         }
         current = current->next;
+        pthread_rwlock_unlock(&current->lock);
+
+
     }
 
     return NULL; // Key not found
 }
-
 
 void put(mhash_table_t *table, char *key, char *value) {
     if(key != NULL && value != NULL){
@@ -60,27 +69,38 @@ void put(mhash_table_t *table, char *key, char *value) {
         strcpy(new_node->value, value);
 
         new_node->next = NULL;
+        pthread_rwlock_init(&new_node->lock, NULL);
 
-        if (table->entries[index] == NULL) {
+        if (table->entries[index] == NULL) { //TODO: bloquear bucket no tabla
+            pthread_rwlock_wrlock(&table->table_lock);
             table->entries[index] = new_node;
-        } else {
+            pthread_rwlock_unlock(&table->table_lock);
+        } else { // si hay datos en el bcuket
             entry_t *current = table->entries[index];
-            entry_t *found = htget(table, key);
+            while (current != NULL) {
+                pthread_rwlock_wrlock(&current->lock);  // Lock de escritura para la entrada
+                if (strcmp(current->key, key) == 0) {
+                    m_free(current->value);
+                    current->value = (char *)m_malloc(strlen(value) + 1);
+                    strcpy(current->value, value);  // Actualiza con el nuevo valor
+                    pthread_rwlock_unlock(&current->lock);
+                    free_entry(new_node);
+                    break;
+                }
+                pthread_rwlock_unlock(&current->lock);
+                current = current->next;
+            }
 
-            if(found==NULL){ //does not exist
-                //added node
+            if (current == NULL) {
+                // Si no se encontró la clave, agregar una nueva entrada
+                pthread_rwlock_wrlock(&table->entries[index]->lock);  // Lock de escritura para la entrada
+                new_node->next = table->entries[index];
                 table->entries[index] = new_node;
-                new_node->next = current;
-
-            }else{ //exist
-                //update value
-                m_free(found->value);
-                found->value = strdup(value);
-                free_entry(new_node);
+                table->size++;
+                pthread_rwlock_unlock(&table->entries[index]->lock);
             }
         }
 
-        table->size++;
     }
 
 }
@@ -89,7 +109,7 @@ void free_entry(entry_t *temp){
     if (temp == NULL) {
         return;
     }
-
+    pthread_rwlock_destroy(&temp->lock);
     m_free(temp->key);
     m_free(temp->value);
     m_free(temp);
@@ -97,6 +117,7 @@ void free_entry(entry_t *temp){
 }
 
 void free_table(mhash_table_t *table) {
+    pthread_rwlock_destroy(&table->table_lock);
     for (size_t i = 0; i < table->capacity; i++) {
         entry_t *current = table->entries[i];
         while (current != NULL) {

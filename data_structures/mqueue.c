@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "mqueue.h"
 
-
 queue_t *request_queue;
 
 queue_t* init_queue() {
@@ -13,6 +12,7 @@ queue_t* init_queue() {
 }
 
 void enqueue(queue_t* queue, int data) {
+    safe_printf("Encolando: %d\n", data);
     node_t* new_node = (node_t*)m_malloc(sizeof(node_t));
     new_node->data = data;
     new_node->next = NULL;
@@ -36,29 +36,35 @@ int dequeue(queue_t* queue) {
     pthread_mutex_lock(&queue->mutex);
     safe_printf("Hilo captura mutex %ld\n", pthread_self());
 
-    while (queue->front == NULL) {
+    safe_printf("condicion while queue->front == NULL [%d] && keep_running [%d]\n", queue->front == NULL, keep_running);
+    while (queue->front == NULL && keep_running) {
         safe_printf("Hilo ANTES WAIT mutex %ld\n", pthread_self());
 
         pthread_cond_wait(&queue->cond, &queue->mutex);
         safe_printf("Hilo DESPUES WAIT mutex %ld\n", pthread_self());
 
     }
+    int data = NULL;
+    if(queue!=NULL && queue->front!=NULL){
+        node_t* temp = queue->front;
+        data = temp->data;
 
-    node_t* temp = queue->front;
-    int data = temp->data;
+        queue->front = queue->front->next;
+        if (queue->front == NULL) {
+            queue->rear = NULL;
+        }
 
-    queue->front = queue->front->next;
-    if (queue->front == NULL) {
-        queue->rear = NULL;
+        m_free(temp);
     }
 
-    m_free(temp);
     pthread_mutex_unlock(&queue->mutex);
     return data;
 }
 
 void destroy_queue(queue_t* queue) {
     pthread_mutex_lock(&queue->mutex);
+    pthread_cond_broadcast(&queue->cond);
+    safe_printf("Destroying queue...\n");
 
     node_t* current = queue->front;
     while (current != NULL) {
@@ -69,5 +75,8 @@ void destroy_queue(queue_t* queue) {
 
     pthread_mutex_unlock(&queue->mutex);
     pthread_mutex_destroy(&queue->mutex);
+
     pthread_cond_destroy(&queue->cond);
+    safe_printf("3 Queue destroyed successful!\n");
+
 }

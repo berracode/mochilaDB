@@ -17,7 +17,7 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(command_t);
 response_t* set(int argc, char *argv[]) {
     //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
     //sleep(3);
-    response_t *response = m_malloc(sizeof(response_t *));
+    response_t *response = m_malloc(sizeof(response_t));
     safe_printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
     char *key = argv[1];
     char *value = argv[2];
@@ -28,7 +28,7 @@ response_t* set(int argc, char *argv[]) {
     response->status = SUCCESS;
     response->message = strdup(OK);
 
-    safe_printf("$$$ End command %s\n",argv[0]);
+    safe_printf("End command %s\n",argv[0]);
 
     return response;
 }
@@ -37,27 +37,28 @@ response_t* get(int argc, char *argv[]) {
     //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
     //sleep(5);
     safe_printf("--- Executing command %s with %d arguments\n",argv[0], argc);
-    response_t *response = m_malloc(sizeof(response_t *));
+    response_t *response = m_malloc(sizeof(response_t));
 
     char *key = argv[1];
     if (key) {
-        entry_t *entry = htget(hash_table, key);
-        if (!entry) {
+        char *entry_value = htget(hash_table, key);
+        if (!entry_value) {
             response->status = ERROR_KEY_NOT_FOUND;
             response->message = strdup(NOT_FOUND);
         }else{
-            response->message = strdup(entry->value);
+            response->message = entry_value;
             response->status = SUCCESS;
+
         }
     }
-    safe_printf("--- End command %s\n",argv[0]);
+    safe_printf("End command %s\n",argv[0]);
 
     return response;
 }
 
 response_t* list(int argc, char *argv[]) {
     safe_printf("Executing command %s with %d arguments\n",argv[0], argc);
-    response_t *response = m_malloc(sizeof(response_t *));
+    response_t *response = m_malloc(sizeof(response_t));
 
     char* filename = "hash_table_output.txt";
     pthread_t list_thread;

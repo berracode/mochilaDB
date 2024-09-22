@@ -28,7 +28,7 @@ void handle_connection(int client_fd) {
     process_command(buffer, &output_buffer);
     write(client_fd, output_buffer, strlen(output_buffer));
     close(client_fd);
-
+    m_free(output_buffer);
     safe_printf("End Handling client %d\n", client_fd);
 
 }

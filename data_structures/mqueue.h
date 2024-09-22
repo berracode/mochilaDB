@@ -1,8 +1,12 @@
 #ifndef MQUEUE_H
 #define MQUEUE_H
 #include <pthread.h>
+#include <stdbool.h>
+
 #include "../utils/mem/mmem.h"
 #include "../utils/stdio/logger.h"
+extern volatile bool keep_running;
+
 
 
 

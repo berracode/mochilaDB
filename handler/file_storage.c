@@ -5,7 +5,13 @@
 void print_bucket(entry_t *bucket_head, FILE *file) {
     entry_t *current = bucket_head;
     while (current != NULL) {
+        //bloquear
+                pthread_rwlock_rdlock(&current->lock);
+
         fprintf(file, "K=%s, V=%s\n", current->key, current->value);
+        //desbloquar
+                pthread_rwlock_unlock(&current->lock);
+
         current = current->next;
     }
 }

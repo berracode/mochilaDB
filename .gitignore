@@ -6,6 +6,9 @@ main
 linux.c
 hash_table_output.txt
 
-
 bin/mochiladb.*
 bin/*
+
+helgrind_output.txt
+test.jmx
+bin/mochiladb

@@ -1,7 +1,12 @@
+#include <signal.h>
 #include "listener.h"
 #include "../data_structures/mhash_table.h"
 #include "../data_structures/mqueue.h"
 #include "../handler/handler.h"
+
+pthread_t *pool;
+volatile bool keep_running = true;
+int server_fd;
 
 void set_fd_nonblocking(int fd) {
     int flags = fcntl(fd, F_GETFL, 0);
@@ -12,7 +17,7 @@ int init_server() {
     safe_printf("Starting server\n");
     config = init_config();
 
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
         perror("socket");
         exit(EXIT_FAILURE);
@@ -52,21 +57,71 @@ int init_server() {
 }
 
 void* worker_thread(void* arg) {
-    safe_printf("Hilo esperando %ld\n", pthread_self());
-    while (1) {
+    while (keep_running) {
         int client_fd = dequeue(request_queue);
-        handle_connection(client_fd);
+        if(client_fd){
+            handle_connection(client_fd);
+        }
     }
+    safe_printf("Thread %ld is stopping..\n", pthread_self());
     return NULL;
 }
 
+void cleanup() {
+    if (request_queue) {
+        destroy_queue(request_queue);
+    }
+        safe_printf(" 1 Resources cleaned up and server stopped.\n");
+
+    if (hash_table) {
+        free_table(hash_table);
+    }
+    safe_printf(" 2 Resources cleaned up and server stopped.\n");
+
+    for (int i = 0; i < config->thread_pool_size; i++) {
+        safe_printf("-----------$$$$$$----- AQUI th\n");
+        pthread_join(pool[i], NULL);
+    }
+    if (config) {
+        m_free(config);
+    }
+    m_free(pool);
+    if(request_queue){
+        m_free(request_queue);
+    }
+    safe_printf("Resources cleaned up and server stopped.\n");
+}
+
+// Manejador de la señal SIGINT
+void signal_handler(int sig) {
+    shutdown(server_fd, SHUT_RDWR);
+
+    keep_running = false;
+    safe_printf("KEEP_RUNNING %d\n", keep_running);
+    if (sig == SIGINT) {
+        safe_printf("SIGINT received. Cleaning up resources...\n");
+    } else if (sig == SIGABRT) {
+        safe_printf("SIGABRT received. Cleaning up resources...\n");
+    } else if (sig == SIGTERM) {
+        safe_printf("SIGTERM received. Cleaning up resources...\n");
+    } else {
+        safe_printf("Signal %d received. Cleaning up resources...\n", sig);
+    }
+    cleanup();
+    exit(0);  // Salir del programa
+}
+
 void start_server(int server_fd){
+    // Registrar el manejador de SIGINT
+    signal(SIGINT, signal_handler);
+    signal(SIGABRT, signal_handler);
+    signal(SIGTERM, signal_handler);
 
     hash_table = create_table(config->hashtable_size);
     //queue
     request_queue = init_queue();
 
-    pthread_t pool[config->thread_pool_size];
+    pool = (pthread_t *)malloc(config->thread_pool_size * sizeof(pthread_t));
     for (int i = 0; i < config->thread_pool_size; i++) {
         pthread_create(&pool[i], NULL, worker_thread, NULL);
     }
@@ -85,12 +140,20 @@ void start_server(int server_fd){
     timeout.tv_usec = 0; // 0 microsegundos
 
 
-    while (1) {
+    while (keep_running) {
+        //safe_printf("-------------------------- CORRIENDO EN BUCLE PRINCIAPL\n");
         read_fds = master_fds;
         //TODO: implementar el eventloop con epoll y kqueue
-        if (select(max_fd + 1, &read_fds, NULL, NULL, &timeout) < 0) {
+        int activity = select(max_fd + 1, &read_fds, NULL, NULL, &timeout);
+
+        if (activity < 0 && errno != EINTR) {  // Ignorar interrupciones por señales
             perror("select");
-            exit(EXIT_FAILURE);
+            break;
+        }
+
+        if (!keep_running) {
+            safe_printf("---------------- TOCA SALIR\n");
+            break;  // Salir del bucle si se ha recibido SIGINT o SIGTERM
         }
 
        for (int fd = 0; fd <= max_fd; fd++) {
@@ -118,6 +181,11 @@ void start_server(int server_fd){
             }
         }
     }
+
+    if (server_fd >= 0) {
+        close(server_fd);
+    }
+
     destroy_queue(request_queue);
     close(server_fd);
     free_table(hash_table);

@@ -55,6 +55,6 @@ dev: rebuild
 
 prod: CFLAGS = $(CFLAGS_PROD)
 prod: rebuild
-	strip $(EXEC)
+#strip $(EXEC)
 
 .PHONY: all clean clean_objs rebuild dev prod

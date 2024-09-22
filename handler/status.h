@@ -16,7 +16,6 @@ typedef enum {
 typedef struct {
     operation_status_t status;
     char *message; // Mensaje descriptivo del estado
-    char *value; // Para almacenar el valor obtenido en operaciones de 'get'
 } response_t;
 
 #endif
