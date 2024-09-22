@@ -10,9 +10,9 @@
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group">
-        <intProp name="ThreadGroup.num_threads">1000</intProp>
+        <intProp name="ThreadGroup.num_threads">1000000</intProp>
         <intProp name="ThreadGroup.ramp_time">5</intProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
           <stringProp name="LoopController.loops">1</stringProp>
@@ -32,49 +32,55 @@
           <stringProp name="variableNames">random</stringProp>
         </CSVDataSet>
         <hashTree/>
-        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Variable aleatoria" enabled="true">
-          <stringProp name="variableName">random</stringProp>
-          <stringProp name="outputFormat">1000000</stringProp>
+        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="keySet" enabled="true">
+          <stringProp name="variableName">keySet</stringProp>
+          <stringProp name="outputFormat"></stringProp>
           <stringProp name="minimumValue">1</stringProp>
-          <stringProp name="maximumValue">1000000</stringProp>
-          <stringProp name="randomSeed">1000</stringProp>
+          <stringProp name="maximumValue">6</stringProp>
+          <stringProp name="randomSeed">2</stringProp>
           <boolProp name="perThread">false</boolProp>
         </RandomVariableConfig>
         <hashTree/>
-        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="keyRandom" enabled="true">
-          <stringProp name="maximumValue">10000000</stringProp>
+        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="valueRan" enabled="true">
+          <stringProp name="variableName">valueRan</stringProp>
+          <stringProp name="outputFormat">100000000</stringProp>
           <stringProp name="minimumValue">1</stringProp>
-          <stringProp name="outputFormat">1000000</stringProp>
+          <stringProp name="maximumValue">100000000</stringProp>
+          <stringProp name="randomSeed">5555</stringProp>
           <boolProp name="perThread">false</boolProp>
-          <stringProp name="randomSeed">100055</stringProp>
-          <stringProp name="variableName">insertRandom</stringProp>
         </RandomVariableConfig>
         <hashTree/>
-        <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="READ">
+        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="keyGet" enabled="true">
+          <stringProp name="maximumValue">4</stringProp>
+          <stringProp name="minimumValue">1</stringProp>
+          <stringProp name="outputFormat"></stringProp>
+          <boolProp name="perThread">false</boolProp>
+          <stringProp name="randomSeed">1</stringProp>
+          <stringProp name="variableName">keyGet</stringProp>
+        </RandomVariableConfig>
+        <hashTree/>
+        <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="get">
           <stringProp name="TCPSampler.server">localhost</stringProp>
-          <boolProp name="TCPSampler.reUseConnection">false</boolProp>
+          <boolProp name="TCPSampler.reUseConnection">true</boolProp>
           <stringProp name="TCPSampler.port">7986</stringProp>
-          <boolProp name="TCPSampler.nodelay">false</boolProp>
           <stringProp name="TCPSampler.timeout"></stringProp>
-          <stringProp name="TCPSampler.request">get key${insertRandom}</stringProp>
-          <boolProp name="TCPSampler.closeConnection">false</boolProp>
+          <stringProp name="TCPSampler.request">get key${keyGet}</stringProp>
           <stringProp name="ConfigTestElement.username"></stringProp>
           <stringProp name="ConfigTestElement.password"></stringProp>
         </TCPSampler>
         <hashTree/>
-        <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="INSERT">
+        <TCPSampler guiclass="TCPSamplerGui" testclass="TCPSampler" testname="set">
           <stringProp name="TCPSampler.server">localhost</stringProp>
-          <boolProp name="TCPSampler.reUseConnection">false</boolProp>
+          <boolProp name="TCPSampler.reUseConnection">true</boolProp>
           <stringProp name="TCPSampler.port">7986</stringProp>
           <boolProp name="TCPSampler.nodelay">false</boolProp>
           <stringProp name="TCPSampler.timeout"></stringProp>
-          <stringProp name="TCPSampler.request">set key${insertRandom} value${insertRandom}</stringProp>
-          <boolProp name="TCPSampler.closeConnection">false</boolProp>
+          <stringProp name="TCPSampler.request">set key${keySet} value${valueRan}</stringProp>
           <stringProp name="ConfigTestElement.username"></stringProp>
           <stringProp name="ConfigTestElement.password"></stringProp>
         </TCPSampler>
         <hashTree/>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>
