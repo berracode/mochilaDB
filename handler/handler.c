@@ -26,9 +26,9 @@ void handle_connection(int client_fd) {
 
     buffer[bytes_read] = '\0';
     process_command(buffer, &output_buffer);
-    write(client_fd, output_buffer, strlen(output_buffer));
+    ssize_t bytes_written = write(client_fd, output_buffer, strlen(output_buffer));
     close(client_fd);
     m_free(output_buffer);
-    safe_printf("End Handling client %d\n", client_fd);
+    safe_printf("End Handling client %d, %ld\n", client_fd, bytes_written);
 
 }
