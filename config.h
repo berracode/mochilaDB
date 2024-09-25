@@ -9,7 +9,6 @@ typedef struct config {
     int buffer_size;
     int hashtable_size;
     float load_factor;
-    int thread_pool_size;
 } config_t;
 extern config_t *config;
 

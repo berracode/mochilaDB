@@ -15,18 +15,26 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(command_t);
 
 
 response_t* set(int argc, char *argv[]) {
-    //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
-    //sleep(3);
     response_t *response = m_malloc(sizeof(response_t));
     safe_printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
+    if (argc < 3) {
+        response->status = ERROR_INVALID_ARGUMENTS;
+        response->message = strdup("Invalid arguments. Usage: set <key> <value>");
+        return response;
+    }
     char *key = argv[1];
     char *value = argv[2];
+    int response_code = 0;
     if (key && value) {
-        put(hash_table, key, value);
+        response_code = put(hash_table, key, value);
     }
-
-    response->status = SUCCESS;
-    response->message = strdup(OK);
+    if(response_code<0){
+        response->status = ERROR_SETTING_ENTRY;
+        response->message = strdup(ERROR_SETTING);
+    } else {
+        response->status = SUCCESS;
+        response->message = strdup(OK);
+    }
 
     safe_printf("End command %s\n",argv[0]);
 
@@ -34,8 +42,6 @@ response_t* set(int argc, char *argv[]) {
 }
 
 response_t* get(int argc, char *argv[]) {
-    //safe_printf("############ Duermiendo hilo en GET %ld\n", pthread_self());
-    //sleep(5);
     safe_printf("--- Executing command %s with %d arguments\n",argv[0], argc);
     response_t *response = m_malloc(sizeof(response_t));
 
@@ -79,22 +85,6 @@ void clean_argv(int argc, char *argv[]) {
         && argv[argc-1][last_token_len-2]==13){
         argv[argc-1][last_token_len-2]= '\0';
     }
-
-    /*for (int k = 0; k < (int)strlen(argv[argc-1]); k++)
-    {
-        safe_printf("last token: [%d]\n", argv[argc-1][k]);
-
-
-    }
-    
-
-    for (int i = 0; i < argc; i++){
-        safe_printf("---- %s\n", argv[i]);
-        for (int j = 0; j < (int)strlen(argv[i]); j++){
-            safe_printf("[%d]\n", argv[i][j]);
-        }
-        safe_printf("----\n");
-    }*/
 
 }
 

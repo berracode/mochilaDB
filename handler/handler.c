@@ -10,7 +10,7 @@ void handle_connection(int client_fd) {
     char *output_buffer = NULL;
     ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer) - 1);
 
-    if (bytes_read < 0) {
+    /*if (bytes_read < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             safe_printf("No data\n");
             return;
@@ -22,13 +22,25 @@ void handle_connection(int client_fd) {
     } else if (bytes_read == 0) {
         close(client_fd);
         return;
-    }
+    }*/
 
-    buffer[bytes_read] = '\0';
-    process_command(buffer, &output_buffer);
-    write(client_fd, output_buffer, strlen(output_buffer));
+    if(bytes_read > 0){
+        buffer[bytes_read] = '\0';
+        process_command(buffer, &output_buffer);
+        //ssize_t bytes_written = write(client_fd, output_buffer, strlen(output_buffer));
+        ssize_t bytes_sent = send(client_fd, output_buffer, strlen(output_buffer), MSG_NOSIGNAL);
+        if (bytes_sent < 0) {
+            perror("send");
+            // Manejar el error
+        }
+        if(strlen(output_buffer)>0) {
+            m_free(output_buffer);
+        }
+        safe_printf("End Handling client %d, %ld\n", client_fd, bytes_sent);
+    }
+   
+
+    shutdown(client_fd, SHUT_RDWR);
     close(client_fd);
-    m_free(output_buffer);
-    safe_printf("End Handling client %d\n", client_fd);
 
 }

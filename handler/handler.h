@@ -5,6 +5,8 @@
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
+#include <sys/socket.h>
+
 
 #include "../data_structures/mhash_table.h"
 #include "../config.h"
