@@ -77,7 +77,7 @@ int init_server() {
         exit(EXIT_FAILURE);
     }
 
-    if (listen(server_fd, 3) < 0) {
+    if (listen(server_fd, 1024) < 0) {
         perror("listen");
         close(server_fd);
         exit(EXIT_FAILURE);

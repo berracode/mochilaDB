@@ -17,14 +17,24 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(command_t);
 response_t* set(int argc, char *argv[]) {
     response_t *response = m_malloc(sizeof(response_t));
     safe_printf("$$$ Executing command %s with %d arguments\n",argv[0], argc);
+    if (argc < 3) {
+        response->status = ERROR_INVALID_ARGUMENTS;
+        response->message = strdup("Invalid arguments. Usage: set <key> <value>");
+        return response;
+    }
     char *key = argv[1];
     char *value = argv[2];
+    int response_code = 0;
     if (key && value) {
-        put(hash_table, key, value);
+        response_code = put(hash_table, key, value);
     }
-
-    response->status = SUCCESS;
-    response->message = strdup(OK);
+    if(response_code<0){
+        response->status = ERROR_SETTING_ENTRY;
+        response->message = strdup(ERROR_SETTING);
+    } else {
+        response->status = SUCCESS;
+        response->message = strdup(OK);
+    }
 
     safe_printf("End command %s\n",argv[0]);
 

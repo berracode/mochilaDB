@@ -30,8 +30,17 @@ void kqueue_wait_2(event_loop_t *loop, int server_fd, handler_connection_t handl
             }
             kqueue_add(loop, client_fd);
 
-        } else {
+        } else if (kqueue_loop->ev_list[i].filter == EVFILT_READ) {
             handler(kqueue_loop->ev_list[i].ident);
+
+            //close(kqueue_loop->ev_list[i].ident);
+            //kqueue_remove(loop, kqueue_loop->ev_list[i].ident); //TODO: mismo que en LINUX
+
+        } else if (kqueue_loop->ev_list[i].flags & (EV_EOF | EV_ERROR)) {
+            int client_fd = kqueue_loop->ev_list[i].ident;
+            printf("Cliente desconectado o error en el socket: %d\n", client_fd);
+            close(client_fd);  
+            kqueue_remove(loop, client_fd);
         }
     }
 }

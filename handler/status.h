@@ -10,7 +10,8 @@ typedef enum {
     SUCCESS,
     ERROR_KEY_NOT_FOUND,
     ERROR_DATABASE_FULL,
-    ERROR_SETTING_ENTRY
+    ERROR_SETTING_ENTRY,
+    ERROR_INVALID_ARGUMENTS
 } operation_status_t;
 
 typedef struct {

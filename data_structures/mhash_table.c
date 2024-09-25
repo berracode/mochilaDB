@@ -51,8 +51,8 @@ char* htget(mhash_table_t *table, char *key) {
 
     return NULL; // Key not found
 }
-
-void put(mhash_table_t *table, char *key, char *value) {
+//return 1 in happy path, 0 otherwise
+int put(mhash_table_t *table, char *key, char *value) {
     if(key != NULL && value != NULL){
         unsigned int index= hash_function(table->capacity, key);
 
@@ -67,6 +67,7 @@ void put(mhash_table_t *table, char *key, char *value) {
 
         if (table->entries[index] == NULL) { //TODO: bloquear bucket no tabla
             table->entries[index] = new_node;
+            return 1;
         } else { // si hay datos en el bcuket
             entry_t *current = table->entries[index];
             while (current != NULL) {
@@ -75,7 +76,7 @@ void put(mhash_table_t *table, char *key, char *value) {
                     current->value = (char *)m_malloc(strlen(value) + 1);
                     strcpy(current->value, value);  // Actualiza con el nuevo valor
                     free_entry(new_node);
-                    break;
+                    return 1;
                 }
                 current = current->next;
             }
@@ -85,10 +86,15 @@ void put(mhash_table_t *table, char *key, char *value) {
                 new_node->next = table->entries[index];
                 table->entries[index] = new_node;
                 table->size++;
+                return 1;
+            } else {
+                return 0;
             }
         }
 
     }
+
+    return 0;
 
 }
 
