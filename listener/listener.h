@@ -11,7 +11,7 @@
 
 int init_server();
 void start_server(int server_fd);
-void set_fd_nonblocking(int fd);
+int set_fd_nonblocking(int fd);
 
 
 
