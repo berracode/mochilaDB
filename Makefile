@@ -5,7 +5,7 @@ CFLAGS_DEV = -Wall -Wextra -g
 # Opciones de compilación para producción
 CFLAGS_PROD = -O3 -flto -DNDEBUG -march=native
 
-LIBS = 
+LIBS = -lpthread
 SRC_DIR = .
 BUILD_DIR = build
 BIN_DIR = bin
